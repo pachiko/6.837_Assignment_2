@@ -1,0 +1,5 @@
+-in MatrixStack.cpp, please don't return a pointer. It gets treated as a Matrix.
+-Do not use `./a2 data/Model1.skel`. Using `./a2 data/Model1` is correct (it's not just skeleton, but meshes too)
+-Do not scale the transformation with attachment weight. Only scale at the end (scale the vertex)
+-Always call glNormal() before glVertex(). Normals will be used for all subsequent() glVertex calls.  This is a state in OpenGL that you can't push or pop.
+Source: http://www.cse.msu.edu/~cse872/tutorial3.html

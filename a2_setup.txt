@@ -1,0 +1,76 @@
+-the vecmath library on github is outdated, but you can use their makefile to compile the latest source code in this assignment
+
+-That also means you dont need the FLTK, GL, and vecmath folders to RUN the app, since you will be installing them.
+
+-you have to install FLTK and GL on your WSL. FLTK during 2012 was ver 1.3.2
+FLTK: https://www.fltk.org/software.php?VERSION=1.3.2
+GL: sudo apt-get install xxx
+
+-you may need this to install FLTK:
+ sudo apt-get install pkg-config
+
+-during the make of FLTK, an error might appear so do this:
+ ./configure --disable-xft
+
+- OR this:
+ pkg-config --static --libs x11 xrandr xi xxf86vm glew glfw3pkg-config --static --libs x11 xrandr xi xxf86vm glew glfw3
+
+-Can't remember where this happened, but you might get an error when compiling FLTK.
+Something to do with friend-declared function cannot have default arguments.
+Fix is here: https://stackoverflow.com/questions/22533511/friend-declaration-specifying-a-default-argument-must-be-a-definition
+
+-a few other link flags need to be added into makefile. Install them if not found.
+LINKFLAGS += -lfltk -lfltk_gl -lX11 -ldl -lXext
+
+-The following errors are signs that you need to add missing links:
+
+/usr/bin/ld: /usr/local/lib/libfltk.a(Fl_x.o): undefined reference to symbol 'XConvertSelection'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libX11.so.6: error adding symbols: DSO missing from command line
+
+/usr/bin/ld: /usr/local/lib/libfltk.a(Fl_x.o): undefined reference to symbol 'dlsym@@GLIBC_2.2.5'
+/usr/bin/ld: /lib/x86_64-linux-gnu/libdl.so.2: error adding symbols: DSO missing from command line
+
+/usr/bin/ld: /usr/local/lib/libfltk.a(Fl_Double_Window.o): undefined reference to symbol 'XdbeAllocateBackBufferName'
+/usr/bin/ld: /usr/lib/x86_64-linux-gnu/libXext.so.6: error adding symbols: DSO missing from command line
+
+- It seems to compile fine even if the path to the vecmath lib is MIT:
+ INCFLAGS += -I /mit/6.837/public/include/vecmath
+
+- I can't run the solution. Turns out it was missing libfltk.so.1.1 (basically comes from installing dev version 1.1)
+Segmentation fault: core dumped.
+
+- If all else fails, use Google! or get a Linux VM using VirtualBox
+
+
+************ 08/May/2021 **************
+
+- The following errors were seen when compiling the final OBJ file.
+
+g++ -g -DSOLN bitmap.o camera.o MatrixStack.o modelerapp.o modelerui.o ModelerView.o Joint.o SkeletalModel.o Mesh.o main.o -o a2 -lglut -lGL -lGLU -L /usr/lib -lvecmath -lfltk -lfltk_gl -lX11 -ldl -lXext
+/usr/bin/ld: modelerapp.o: in function `ModelerApplication::Init(int, char**, ModelerControl const*, unsigned int)':
+/mnt/a/IntroCG/a2_old_DONOTEDIT/distrib/modelerapp.cpp:97: undefined reference to `Fl_Box::Fl_Box(int, int, int, int, char const*)'
+/usr/bin/ld: modelerui.o: in function `ModelerUserInterface::ModelerUserInterface()':
+/mnt/a/IntroCG/a2_old_DONOTEDIT/distrib/modelerui.cpp:158: undefined reference to `Fl_Double_Window::Fl_Double_Window(int, int, char const*)'
+/usr/bin/ld: /mnt/a/IntroCG/a2_old_DONOTEDIT/distrib/modelerui.cpp:162: undefined reference to `Fl_Menu_Bar::Fl_Menu_Bar(int, int, int, int, char const*)'
+/usr/bin/ld: /mnt/a/IntroCG/a2_old_DONOTEDIT/distrib/modelerui.cpp:181: undefined reference to `Fl_Double_Window::Fl_Double_Window(int, int, char const*)'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:24: a2] Error 1
+
+This is due to NOT linking `libfltk.a`
+
+-Use the fltk-config executable to help you debug. It tells you where the libs and includes etc are supposed to be:
+[--cxxflags]      return flags to compile C++ using FLTK
+[--ldflags]       return flags to link against FLTK
+[--libs]          return FLTK libraries full path for dependencies
+[--prefix]        return FLTK install time --prefix directory
+[--includedir]    return FLTK install time include directory
+
+Turns out it is kept in /usr/local/lib instead of /usr/lib, i.e.
+
+LINKFLAGS += -L /usr/local/lib -lvecmath
+
+instead of
+
+LINKFLAGS += -L /usr/lib -lvecmath
+
+Source: https://groups.google.com/g/fltkgeneral/c/YXU5l31Ak3s?pli=1
