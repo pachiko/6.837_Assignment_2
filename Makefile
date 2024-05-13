@@ -1,8 +1,7 @@
-INCFLAGS  = -I /usr/include/GL
 INCFLAGS += -I /usr/include/vecmath
 
 LINKFLAGS  = -lglut -lGL -lGLU
-LINKFLAGS += -L /usr/local/lib -lvecmath
+LINKFLAGS += -lvecmath
 
 #added for WSL X11
 LINKFLAGS += -lfltk -lfltk_gl -lX11 -ldl -lXext
